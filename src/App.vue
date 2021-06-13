@@ -1,16 +1,21 @@
 <template>
   <BubbleBox />
-  <h1>NeighBeerGood</h1>
+  <main>
+    <h1>NeighBeerGood</h1>
+    <SearchBrewery />
+  </main>
 </template>
 
 <script>
 import BubbleBox from "./components/BubbleBox.vue";
+import SearchBrewery from "./components/SearchBrewery.vue";
 
 export default {
   name: "App",
   components: {
     BubbleBox,
-  },
+    SearchBrewery
+  }
 };
 </script>
 
@@ -18,6 +23,8 @@ export default {
 body {
   margin: 0;
   font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.333em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(
@@ -32,16 +39,15 @@ body {
   );
   overflow: hidden;
 }
-#app {
-  height: 100vh;
-  box-sizing: border-box;
+main {
+  padding: 0 4em;
   overflow: auto;
+  height: 100vh;
 }
 h1 {
-  position: relative;
-  z-index: 10;
   margin: 0;
-  padding: 2em;
+  padding: 2em 0;
+  font-size: 2em;
   text-align: center;
 }
 @media only screen and (orientation: landscape) {
