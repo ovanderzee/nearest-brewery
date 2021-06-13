@@ -16,7 +16,7 @@
       <FoundBrewery
         v-for="brewery in breweries"
         :brewery="brewery"
-        :key="brewery.address.replace(' ', '_')"
+        :key="brewery.address ? brewery.address.replace(' ', '_') : 'error_key'"
       />
     </ul>
   </section>
@@ -24,60 +24,21 @@
 
 <script>
 import FoundBrewery from "./FoundBrewery.vue";
-// import breweriesMixin from "./mixins/breweriesMixin";
+import breweriesMixin from "./mixins/breweriesMixin";
 
 export default {
   name: "SearchBrewery",
-  // mixins: [breweriesMixin],
+  mixins: [breweriesMixin],
   components: {
     FoundBrewery,
   },
   data() {
     return {
       postcode: "",
-      breweries: [{ error: "Not yet fetched data." }],
+      breweries: [],
     };
   },
-  methods: {
-    fetchBreweries() {
-      const fetchOberonBreweries = async () => {
- 
-
-    try {
-      //     [{
-      //       "address" : "Guido Gezellelaan 49",
-      //       "city" : "Mechelen, België",
-      //       "name" : "Brouwerij Het Anker",
-      //       "open" : [ "Tuesday", "Wednesday", "Thursday", "Friday" ],
-      //       "zipcode" : "2800"
-      //     }]
-
-		  const response = await fetch(`//${location.host}/brouwerijen.js`);
-      console.log('response', response)
-      const oberonData = await response.json();
-      console.log('oberonData', oberonData)
-      this.breweries = oberonData.breweries.map((item) => {
-        return {
-          name: item.name,
-          address: item.address,
-          city: item.city,
-          days: item.open,
-          postcode: item.zipcode,
-        };
-      });
-      console.log('this.breweries', this.breweries)
-    } catch (err) {
-      console.log(err);
-      this.breweries = [{ error: err.error.toString() || err.toString() }];
-    }
-
-
-
-
-      }
-      fetchOberonBreweries()
-    },
-  },
+  methods: {},
   created() {
     this.fetchBreweries();
   },
