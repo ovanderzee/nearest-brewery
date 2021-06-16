@@ -1,7 +1,9 @@
 <template>
   <li>
     <h4>{{ brewery.name || brewery.error }}</h4>
-    <div class="distance">{{ brewery.distance }}</div>
+    <div v-if="isFinite(journey.distance)" class="distance">
+      {{ journey.distance }}
+    </div>
     <div class="location">{{ brewery.address }}</div>
     <div class="location">
       <span v-if="brewery.postcode" class="postcode">{{
@@ -15,9 +17,10 @@
 
 <script>
 export default {
-  name: "ListItem",
+  name: "FoundBrewery",
   props: {
     brewery: Object,
+    journey: Object,
   },
 };
 </script>
@@ -40,11 +43,11 @@ li:after {
   top: 0;
   right: 0;
   bottom: 0;
-  width: 120px;
+  width: 150px;
   border-radius: 0.5em;
   background: linear-gradient(
     120deg,
-    transparent 20px,
+    transparent 60px,
     hsla(25, 25%, 44%, 0.3) 90%
   );
 }
@@ -68,9 +71,29 @@ h4 {
 }
 .distance {
   position: absolute;
-  top: 0;
-  right: 0;
-  border: red 10px solid;
+  top: 50%;
+  right: 1.5em;
+  height: 3em;
+  width: 3em;
+  transform: translateY(-50%);
+  background: red;
+  border-radius: 50%;
+  color: white;
+  font-weight: 900;
+  line-height: 2.333em;
+  text-align: center;
+}
+.distance:after {
+  content: "km";
+  font-size: 80%;
+  font-weight: 500;
+  line-height: 2em;
+  text-align: center;
+  text-transform: none;
+  position: absolute;
+  display: block;
+  bottom: 0;
+  width: 100%;
 }
 .postcode:after {
   content: ", ";

@@ -23,8 +23,11 @@ const breweriesMixin = {
      * Normalise Brewery data
      * @this the calling component
      * @borrows this.breweries
+     * @borrows this.journeys
      */
     fetchBreweries() {
+      this.journeys = [];
+
       fetch(`//${location.host}/brouwerijen.js`)
         .then((response) => response.json())
         .then((data) => {
@@ -37,6 +40,13 @@ const breweriesMixin = {
               city: item.city,
               days: item.open,
               postcode: postcode,
+            };
+          });
+        })
+        .then(() => {
+          this.journeys = this.breweries.map((brewery) => {
+            return {
+              id: brewery.id,
             };
           });
         })

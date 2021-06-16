@@ -8,24 +8,16 @@
           :value="postcode"
           placeholder="postcode"
           size="8"
-          v-on:input="trackJourney"
+          v-on:input="trackJourneys"
         />
       </label>
-      <ul>
-        <li
-          v-for="journey in journeys"
-          :journey="journey"
-          :key="journey.id"
-        >
-          {{ JSON.stringify(journey) }}
-        </li>
-      </ul>
     </form>
     <ul>
       <FoundBrewery
-        v-for="brewery in breweries"
-        :brewery="brewery"
-        :key="brewery.id"
+        v-for="journey in journeys"
+        :brewery="breweries.filter((brw) => brw.id === journey.id)[0]"
+        :journey="journey"
+        :key="journey.id"
       />
     </ul>
   </section>
@@ -48,13 +40,16 @@ export default {
       postcode: "",
       breweries: [],
       journeys: [],
+      results: 5,
     };
   },
   methods: {
-    trackJourney(event) {
+    trackJourneys(event) {
       event.stopPropagation();
       const givenPostcode = this.normalisePostcode(event.target.value);
       if (!givenPostcode) return;
+      this.journeys = [];
+
       this.breweries.forEach((brewery) =>
         this.fetchJourney(givenPostcode, brewery)
       );

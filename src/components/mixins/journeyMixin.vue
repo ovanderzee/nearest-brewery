@@ -6,12 +6,21 @@
 
 const journeyMixin = {
   methods: {
+    /**
+     * Normalise Postcode to do queries or calculations
+     */
     normalisePostcode(rawString) {
       const patternMatch = rawString.match(/\d\d\d\d/);
       if (patternMatch) {
         return patternMatch[0];
       }
     },
+    /**
+     * Gather sortable brewery data
+     * @this the calling component
+     * @borrows this.journeys
+     * @borrows this.breweries
+     */
     fetchJourney(from, brewery) {
       let to =
         brewery.postcode.length > 4 && this.normalisePostcode(brewery.postcode);
@@ -51,14 +60,21 @@ const journeyMixin = {
               gMapURL: `${gMapDirection}${gMapParams}`,
             },
           ];
+          this.journeys.sort((a, b) => {
+            return a.distance > b.distance;
+          });
+          this.journeys = this.journeys.map((jrn) => jrn);
         })
         .catch((err) => {
-          this.journeys.push({
-            id: "error_key",
-            from: from,
-            to: to,
-            error: err.error ? err.error.toString() : err.toString(),
-          });
+          this.journeys = [
+            ...this.journeys,
+            {
+              id: brewery.id,
+              from: from,
+              to: to,
+              error: err.error ? err.error.toString() : err.toString(),
+            },
+          ];
         });
     },
   },
