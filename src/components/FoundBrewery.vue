@@ -9,6 +9,7 @@
       }}</span>
       <span class="city">{{ brewery.city }}</span>
     </div>
+    <div class="opened">{{ brewery.days.join(", ") }}</div>
   </li>
 </template>
 
@@ -76,5 +77,9 @@ h4 {
 }
 .city {
   font-weight: 700;
+}
+.opened {
+  font-size: 0.92em;
+  font-style: italic;
 }
 </style>

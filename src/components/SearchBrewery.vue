@@ -8,15 +8,24 @@
           :value="postcode"
           placeholder="postcode"
           size="8"
-          oninput=""
+          v-on:input="trackJourney"
         />
       </label>
+      <ul>
+        <li
+          v-for="journey in journeys"
+          :journey="journey"
+          :key="journey.id"
+        >
+          {{ JSON.stringify(journey) }}
+        </li>
+      </ul>
     </form>
     <ul>
       <FoundBrewery
         v-for="brewery in breweries"
         :brewery="brewery"
-        :key="brewery.address ? brewery.address.replace(' ', '_') : 'error_key'"
+        :key="brewery.id"
       />
     </ul>
   </section>
@@ -25,10 +34,12 @@
 <script>
 import FoundBrewery from "./FoundBrewery.vue";
 import breweriesMixin from "./mixins/breweriesMixin";
+import journeyMixin from "./mixins/journeyMixin";
 
 export default {
   name: "SearchBrewery",
-  mixins: [breweriesMixin],
+  mixins: [breweriesMixin, journeyMixin],
+
   components: {
     FoundBrewery,
   },
@@ -36,9 +47,20 @@ export default {
     return {
       postcode: "",
       breweries: [],
+      journeys: [],
     };
   },
-  methods: {},
+  methods: {
+    trackJourney(event) {
+      event.stopPropagation();
+      const givenPostcode = this.normalisePostcode(event.target.value);
+      if (!givenPostcode) return;
+      this.breweries.forEach((brewery) =>
+        this.fetchJourney(givenPostcode, brewery)
+      );
+      this.postcode = givenPostcode;
+    },
+  },
   created() {
     this.fetchBreweries();
   },

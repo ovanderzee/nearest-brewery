@@ -19,23 +19,33 @@
 
 const breweriesMixin = {
   methods: {
+    /**
+     * Normalise Brewery data
+     * @this the calling component
+     * @borrows this.breweries
+     */
     fetchBreweries() {
       fetch(`//${location.host}/brouwerijen.js`)
         .then((response) => response.json())
         .then((data) => {
           this.breweries = data.breweries.map((item) => {
+            const postcode = item.zipcode.trim().replace(/\s/, "");
             return {
+              id: `${item.address.replace(/\s/, "_")}__${postcode}`,
               name: item.name,
               address: item.address,
               city: item.city,
               days: item.open,
-              postcode: item.zipcode.trim().length > 4 ? item.zipcode : "",
+              postcode: postcode,
             };
           });
         })
         .catch((err) => {
           this.breweries = [
-            { error: err.error ? err.error.toString() : err.toString() },
+            {
+              id: "error_key",
+              error: err.error ? err.error.toString() : err.toString(),
+            },
           ];
         });
     },
