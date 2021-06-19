@@ -43,13 +43,7 @@ const breweriesMixin = {
             };
           });
         })
-        .then(() => {
-          this.journeys = this.breweries.map((brewery) => {
-            return {
-              id: brewery.id,
-            };
-          });
-        })
+        .then(() => this.noJourneys())
         .catch((err) => {
           this.breweries = [
             {

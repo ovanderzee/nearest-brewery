@@ -4,13 +4,13 @@
       <h4>{{ brewery.name || brewery.error }}</h4>
       <div class="opened long">{{ brewery.days.join(", ") }}</div>
       <div class="opened short">
-        {{ brewery.days.map((day) => day.substr(0,3)).join(", ") }}
+        {{ brewery.days.map((day) => day.substr(0, 3)).join(", ") }}
       </div>
       <div class="address">{{ brewery.address }}</div>
       <div class="location">
-        <span v-if="brewery.postcode" class="postcode">{{
-          brewery.postcode
-        }}</span>
+        <span v-if="brewery.postcode" class="postcode">
+          {{ brewery.postcode }}
+        </span>
         <span class="city">{{ brewery.city }}</span>
       </div>
     </div>
@@ -57,6 +57,7 @@ li {
   background: #fffd;
   box-shadow: 0.125em 0.25em 0.125em 0 hsl(25, 25%, 44%);
   text-transform: capitalize;
+  word-break: break-word;
 }
 li:after {
   content: "";
@@ -75,6 +76,7 @@ li:after {
 
 .brewery-data {
   flex: 1 1 auto;
+  padding: 2px 0;
 }
 h4 {
   margin: 0;
@@ -103,7 +105,7 @@ h4 {
   flex: 0 0 5em;
   position: relative;
   z-index: 1;
-  padding: 0.5em 0.25em;
+  padding: 0.75em 0.25em;
   text-align: right;
 }
 .journey-data:empty {
@@ -111,7 +113,7 @@ h4 {
 }
 .journey-data:before,
 .journey-data:after {
-  content: '';
+  content: "";
   position: absolute;
   right: 0;
   width: 105px;
