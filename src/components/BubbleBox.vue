@@ -1,6 +1,11 @@
 <template>
   <section class="bubble-box">
-    <BubbleStick v-for="stick in sticks" :style="stick" :key="stick" />
+    <BubbleStick
+      v-for="stick in sticks"
+      :style="stick"
+      :endBubble="endBubble"
+      :key="stick"
+    />
   </section>
 </template>
 
@@ -10,50 +15,55 @@ import BubbleStick from "./BubbleStick.vue";
 export default {
   name: "BubbleBox",
   components: {
-    BubbleStick
+    BubbleStick,
   },
 
   data() {
     return {
-      sticks: []
+      interval: 250,
+      sticks: [],
     };
   },
 
   methods: {
+    /**
+     * Add new bubble periodically
+     */
     startBubbling() {
-      // until the screen is nearly half filled with bubbles
-      const htmlElm = document.documentElement;
-      const iteratetionsOnOneLine = htmlElm.clientWidth / 300;
-      const bubbleCount = (htmlElm.clientHeight * htmlElm.clientWidth) / 750;
-
       this.bubbling = setInterval(() => {
-        const pixelsDecending = Math.round(
-          this.sticks.length / iteratetionsOnOneLine
-        );
+        if (document.visibilityState !== "visible") return;
         const randomPercentage = (100 * Math.random()).toFixed(3);
         const newStick = {
-          top: `${pixelsDecending}px`,
-          height: `calc(90vh - ${pixelsDecending}px)`,
-          left: `${randomPercentage}%`
+          left: `${randomPercentage}%`,
         };
-        this.sticks.push(newStick);
-        if (this.sticks.length >= bubbleCount) clearInterval(this.bubbling);
-      }, 250);
-    }
+        this.sticks = this.sticks.concat([newStick]);
+      }, this.interval);
+    },
+    /**
+     * Remove disappeared bubble
+     */
+    endBubble() {
+      this.sticks = this.sticks.slice(1);
+    },
   },
   created() {
     this.startBubbling();
   },
   beforeUnmount() {
     clearInterval(this.bubbling);
-  }
+  },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .bubble-box {
+  --bubble-size: 5em;
+  --bubble-end-scale: 0.75;
+}
+.bubble-box {
   position: relative;
   z-index: -1;
+  border: none !important;
 }
 </style>

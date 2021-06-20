@@ -1,10 +1,23 @@
 <template>
-  <div class="bubble-path"><div class="bubble" /></div>
+  <div class="bubble-path" v-on:animationend="onOffscreen">
+    <div class="bubble" />
+  </div>
 </template>
 
 <script>
 export default {
   name: "BubbleStick",
+  methods: {
+    /**
+     * Handle a bubble disappearing
+     */
+    onOffscreen() {
+      this.endBubble();
+    },
+  },
+  props: {
+    endBubble: Function,
+  },
 };
 </script>
 
@@ -12,20 +25,21 @@ export default {
 <style scoped>
 .bubble-path {
   position: absolute;
+  top: 0;
   width: 0;
   height: 90vh;
 }
 .bubble {
   position: absolute;
-  left: -2.5em;
-  margin-top: -1.5em;
-  width: 5em;
-  height: 5em;
+  left: calc(var(--bubble-size) / 2);
+  margin-top: calc(0em - var(--bubble-size));
+  width: var(--bubble-size);
+  height: var(--bubble-size);
   border-radius: 50%;
-  /*20em 	box-shadow: inset -2em -1em 2em 0 hsl(25, 25%, 44%), inset 0 5em 2em 0 hsl(43,100%,100%);*/
-  box-shadow: inset -0.5em -0.25em 0.5em 0 hsl(25, 25%, 44%),
-    inset 0 1.25em 0.5em 0 hsl(43, 100%, 100%);
-  background: hsla(39, 76%, 62%, 0.67);
+  box-shadow: inset -0.5em -0.25em 0.5em 0 var(--darkish-beer),
+    inset 0 1.25em 0.5em 0 var(--whitish-beer);
+  background: var(--opaque-strong-beer);
+
   animation-name: bubbling;
   animation-timing-function: ease-out;
   animation-duration: 10s;
@@ -38,7 +52,7 @@ export default {
   }
   to {
     top: 0%;
-    transform: scale(1);
+    transform: scale(var(--bubble-end-scale));
   }
 }
 </style>

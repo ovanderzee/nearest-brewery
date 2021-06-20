@@ -55,7 +55,7 @@ li {
   padding: 0.5em 0.75em;
   border-radius: 0.5em;
   background: #fffd;
-  box-shadow: 0.125em 0.25em 0.125em 0 hsl(25, 25%, 44%);
+  box-shadow: 0.125em 0.25em 0.125em 0 var(--darkish-beer);
   text-transform: capitalize;
   word-break: break-word;
 }
@@ -70,8 +70,9 @@ li:after {
   background: linear-gradient(
     120deg,
     transparent 60px,
-    hsla(25, 25%, 44%, 0.3) 90%
+    var(--darkish-beer) 90%
   );
+  opacity: 0.333;
 }
 
 .brewery-data {

@@ -14,12 +14,18 @@ export default {
   name: "App",
   components: {
     BubbleBox,
-    SearchBrewery
-  }
+    SearchBrewery,
+  },
 };
 </script>
 
 <style>
+:root {
+  --whitish-beer: hsl(43, 100%, 90%);
+  --opaque-strong-beer: hsl(39, 76%, 62%, 0.67);
+  --darkish-beer: hsl(25, 25%, 44%);
+}
+
 body {
   margin: 0;
   font-family: Avenir, Helvetica, Arial, sans-serif;
