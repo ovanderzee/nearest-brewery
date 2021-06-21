@@ -69,14 +69,14 @@ const journeyMixin = {
      * @borrows this.breweries
      */
     fetchJourney(from, brewery) {
-      let to =
+      const to =
         brewery.postcode.length > 4 && this.normalisePostcode(brewery.postcode);
       if (!to) {
         return;
       }
 
       // fetch something to have some asynchronicity
-      fetch(`//${location.host}/brouwerijen.js`)
+      fetch(`//${location.host}/brouwerijen.ts`)
         .then((response) => response.json())
         .then(() => {
           this.journeys = [

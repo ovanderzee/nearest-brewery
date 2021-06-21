@@ -27,7 +27,7 @@ const breweriesMixin = {
     fetchBreweries() {
       this.journeys = [];
 
-      fetch(`//${location.host}/brouwerijen.js`)
+      fetch(`//${location.host}/brouwerijen.ts`)
         .then((response) => response.json())
         .then((data) => {
           this.breweries = data.breweries.map((item) => {
