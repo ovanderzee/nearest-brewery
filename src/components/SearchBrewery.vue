@@ -35,12 +35,14 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+import { TBrewery, TJourney } from "../types";
 import FoundBrewery from "./FoundBrewery.vue";
 import breweriesMixin from "./mixins/breweriesMixin";
 import journeyMixin from "./mixins/journeyMixin";
 
-export default {
+export default defineComponent({
   name: "SearchBrewery",
   mixins: [breweriesMixin, journeyMixin],
 
@@ -49,10 +51,10 @@ export default {
   },
   data() {
     return {
-      postcode: "",
-      breweries: [],
-      journeys: [],
-      findDistance: 30,
+      postcode: "" as string,
+      breweries: [] as TBrewery[],
+      journeys: [] as TJourney[],
+      findDistance: 30 as number,
     };
   },
   methods: {
@@ -64,15 +66,37 @@ export default {
      * @borrows this.postcode
      */
     onReset() {
-      this.noJourneys();
+      this.noJourneys(this.breweries, this.setJourneys);
       this.postcode = "";
     },
     /**
      * Prevent a page reload
      * @param event
      */
-    noSubmit(event) {
+    noSubmit(event: any) {
       event.preventDefault();
+    },
+    /**
+     * Set this.breweries
+     * @param {Array} breweries
+     */
+    setBreweries(breweries: TBrewery[]) {
+      this.breweries = breweries;
+      this.noJourneys(breweries, this.setJourneys);
+    },
+    /**
+     * Set this.journeys thru replacement
+     * @param {Array} journeys
+     */
+    setJourneys(journeys: TJourney[]) {
+      this.journeys = journeys;
+    },
+    /**
+     * Set this.journeys thru addition
+     * @param {Object} journey
+     */
+    setExtraJourney(journey: TJourney) {
+      this.journeys = [...this.journeys, journey];
     },
     /**
      * Engage the search
@@ -80,10 +104,10 @@ export default {
      * @borrows this.breweries
      * @borrows this.postcode
      */
-    trackJourneys(event) {
+    trackJourneys(event: any) {
       event.stopPropagation();
       if (this.postcode && !event.target.value) {
-        this.noJourneys();
+        this.noJourneys(this.breweries, this.setJourneys);
         this.postcode = "";
       }
       const postcodeString = this.normalisePostcode(event.target.value);
@@ -91,26 +115,30 @@ export default {
       this.journeys = [];
 
       this.breweries.forEach((brewery) =>
-        this.fetchJourney(postcodeString, brewery)
+        this.fetchJourney(postcodeString, brewery, this.setExtraJourney)
       );
       this.postcode = postcodeString;
     },
   },
   created() {
-    this.fetchBreweries();
+    this.fetchBreweries(this.setBreweries);
   },
   computed: {
     journeySelection() {
-      const filtered = this.journeys
-        .filter((jrn) =>
-          jrn.distance !== undefined ? jrn.distance < this.findDistance : true
+      const filtered: TJourney[] = this.journeys
+        .filter((jrn: TJourney) =>
+          isFinite(jrn.distance) ? jrn.distance < this.findDistance : true
         )
-        .filter((jrn) => (jrn.openToday !== undefined ? jrn.openToday : true))
-        .sort((a, b) => a.distance > b.distance);
+        .filter((jrn: TJourney) =>
+          jrn.openToday !== undefined ? jrn.openToday : true
+        )
+        .sort(
+          (a: TJourney, b: TJourney) => (a.distance - b.distance) as number
+        );
       return filtered;
     },
   },
-};
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -1,3 +1,6 @@
+import { defineComponent } from "vue";
+import { TBrewery } from "../../types";
+
 /* brewery data
   { breweries: [
     {
@@ -16,21 +19,17 @@
   ]}
 */
 
-const breweriesMixin = {
+const breweriesMixin = defineComponent({
   methods: {
     /**
      * Normalise Brewery data
-     * @this the calling component
-     * @borrows this.breweries
-     * @borrows this.journeys
+     * @param {Function} setBreweries
      */
-    fetchBreweries() {
-      this.journeys = [];
-
+    fetchBreweries(setBreweries: (arg: TBrewery[]) => void) {
       fetch(`//${location.host}/brouwerijen.ts`)
         .then((response) => response.json())
         .then((data) => {
-          this.breweries = data.breweries.map((item) => {
+          const breweries = data.breweries.map((item: any) => {
             const postcode = item.zipcode.trim().replace(/\s/, "");
             return {
               id: `${item.address.replace(/\s/, "_")}__${postcode}`,
@@ -39,20 +38,26 @@ const breweriesMixin = {
               city: item.city,
               days: item.open,
               postcode: postcode,
-            };
-          });
+            } as TBrewery;
+          }) as TBrewery[];
+          setBreweries(breweries);
         })
-        .then(() => this.noJourneys())
         .catch((err) => {
-          this.breweries = [
+          const errorBrewerys = [
             {
               id: "error_key",
+              name: "",
+              address: "",
+              city: "",
+              days: [],
+              postcode: "",
               error: err.error ? err.error.toString() : err.toString(),
-            },
-          ];
+            } as TBrewery,
+          ] as TBrewery[];
+          setBreweries(errorBrewerys);
         });
     },
   },
-};
+});
 
 export default breweriesMixin;

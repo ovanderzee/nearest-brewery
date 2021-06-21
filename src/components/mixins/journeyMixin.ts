@@ -1,3 +1,6 @@
+import { defineComponent } from "vue";
+import { TBrewery, TJourney } from "../../types";
+
 /* postcode-api.nl
    data: {"seconden":"870","reisafstand":"19006"}
    error: { error: "invalid zipcode" }
@@ -25,34 +28,34 @@ const findDayName = () => {
  * @param {Object} brewery - one of the compared
  * @return {String} http address
  */
-const buildMapLink = (brewery) => {
+const buildMapLink = (brewery: TBrewery) => {
   const gMapDirection = "https://www.google.com/maps/dir/";
   const mailAddress = `${brewery.address}\n${brewery.postcode} ${brewery.city}`;
   const gMapParams = mailAddress.replace(/\s/g, "+");
   return `${gMapDirection}${gMapParams}`;
 };
 
-const journeyMixin = {
+const journeyMixin = defineComponent({
   methods: {
     /**
      * Journey list that shows all breweries
-     * @this the calling component
-     * @borrows this.journeys
-     * @borrows this.breweries
+     * @param {Array} breweries
+     * @param {Function} setJourneys
      */
-    noJourneys() {
-      this.journeys = this.breweries.map((brewery) => {
+    noJourneys(breweries: TBrewery[], setJourneys: (arg: TJourney[]) => void) {
+      const journeys = breweries.map((brewery) => {
         return {
           id: brewery.id,
+          distance: Infinity,
         };
-      });
+      }) as TJourney[];
+      setJourneys(journeys);
     },
     /**
      * Normalise Postcode to do queries or calculations
-     * @this the calling component
      * @param {String} rawString - string to find the postcode in.
      */
-    normalisePostcode(rawString) {
+    normalisePostcode(rawString: string) {
       const numericWords = rawString.replace(/\D+/g, " ");
       const patternMatch = numericWords.match(/\b\d{4}\b/);
       if (patternMatch) {
@@ -62,48 +65,49 @@ const journeyMixin = {
     /**
      * Gather sortable brewery data
      * Dismiss not-dutch postcodes (length <= 4)
-     * @this the calling component
      * @param {String} from - postcode of comparison
      * @param {Object} brewery - one of the compared
-     * @borrows this.journeys
-     * @borrows this.breweries
+     * @param {Function} setExtraJourney
      */
-    fetchJourney(from, brewery) {
+    fetchJourney(
+      from: string,
+      brewery: TBrewery,
+      setExtraJourney: (arg: TJourney) => void
+    ) {
       const to =
         brewery.postcode.length > 4 && this.normalisePostcode(brewery.postcode);
       if (!to) {
         return;
       }
 
+      let journey: TJourney;
+
       // fetch something to have some asynchronicity
       fetch(`//${location.host}/brouwerijen.ts`)
         .then((response) => response.json())
         .then(() => {
-          this.journeys = [
-            ...this.journeys,
-            {
-              id: brewery.id,
-              from: from,
-              to: to,
-              distance: Math.round(Math.pow(Math.abs(+from - +to), 0.6)),
-              openToday: brewery.days.includes(findDayName()),
-              mapUrl: buildMapLink(brewery),
-            },
-          ];
+          journey = {
+            id: brewery.id,
+            from: from,
+            to: to,
+            distance: Math.round(Math.pow(Math.abs(+from - +to), 0.6)),
+            openToday: brewery.days.includes(findDayName()),
+            mapUrl: buildMapLink(brewery),
+          };
+          setExtraJourney(journey);
         })
         .catch((err) => {
-          this.journeys = [
-            ...this.journeys,
-            {
-              id: brewery.id,
-              from: from,
-              to: to,
-              error: err.error ? err.error.toString() : err.toString(),
-            },
-          ];
+          journey = {
+            id: brewery.id,
+            from: from,
+            to: to,
+            distance: Infinity,
+            error: err.error ? err.error.toString() : err.toString(),
+          };
+          setExtraJourney(journey);
         });
     },
   },
-};
+});
 
 export default journeyMixin;
