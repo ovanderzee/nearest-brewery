@@ -4,21 +4,23 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
   name: "BubbleStick",
   methods: {
     /**
      * Handle a bubble disappearing
      */
     onOffscreen() {
-      this.endBubble();
+      this.endBubble && this.endBubble();
     },
   },
   props: {
     endBubble: Function,
   },
-};
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

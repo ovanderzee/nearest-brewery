@@ -30,10 +30,12 @@
   </li>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+// @ts-ignore: No code there
 import LocationPin from "./svg/LocationPin";
 
-export default {
+export default defineComponent({
   name: "FoundBrewery",
   components: {
     LocationPin,
@@ -42,7 +44,7 @@ export default {
     brewery: Object,
     journey: Object,
   },
-};
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

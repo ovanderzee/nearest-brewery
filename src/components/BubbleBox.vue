@@ -9,10 +9,12 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue";
+import { TInlineCss } from "../types";
 import BubbleStick from "./BubbleStick.vue";
 
-export default {
+export default defineComponent({
   name: "BubbleBox",
   components: {
     BubbleStick,
@@ -20,8 +22,9 @@ export default {
 
   data() {
     return {
-      interval: 250,
-      sticks: [],
+      bubbling: 0 as number,
+      interval: 250 as number,
+      sticks: [] as TInlineCss[],
     };
   },
 
@@ -33,7 +36,7 @@ export default {
       this.bubbling = setInterval(() => {
         if (document.visibilityState !== "visible") return;
         const randomPercentage = (100 * Math.random()).toFixed(3);
-        const newStick = {
+        const newStick: TInlineCss = {
           left: `${randomPercentage}%`,
         };
         this.sticks = this.sticks.concat([newStick]);
@@ -52,7 +55,7 @@ export default {
   beforeUnmount() {
     clearInterval(this.bubbling);
   },
-};
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

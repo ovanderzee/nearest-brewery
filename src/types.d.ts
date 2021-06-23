@@ -17,3 +17,10 @@ export type TJourney = {
     mapUrl?: string;
     error?: string;
 }
+
+export type TInlineCss = {
+    left?: string;
+    top?: string;
+    width?: string;
+    height?: string;
+}
