@@ -1,8 +1,36 @@
-<script>
 /* postcode-api.nl
    data: {"seconden":"870","reisafstand":"19006"}
    error: { error: "invalid zipcode" }
 */
+
+/**
+ * Get the name of the current weekday
+ * @return {String} name of current weekday
+ */
+const findDayName = () => {
+  const dayNames = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const now = new Date();
+  return dayNames[now.getDay()];
+};
+/**
+ * Make a online maplink
+ * @param {Object} brewery - one of the compared
+ * @return {String} http address
+ */
+const buildMapLink = (brewery) => {
+  const gMapDirection = "https://www.google.com/maps/dir/";
+  const mailAddress = `${brewery.address}\n${brewery.postcode} ${brewery.city}`;
+  const gMapParams = mailAddress.replace(/\s/g, "+");
+  return `${gMapDirection}${gMapParams}`;
+};
 
 const journeyMixin = {
   methods: {
@@ -47,26 +75,9 @@ const journeyMixin = {
         return;
       }
 
-      const now = new Date();
-      const dayNames = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ];
-      const dayName = dayNames[now.getDay()] //eslint-disable-line
-
-      const gMapDirection = "https://www.google.com/maps/dir/";
-      const gMapParams = `${brewery.address},+${brewery.postcode}+${brewery.city}`;
-
       // fetch something to have some asynchronicity
       fetch(`//${location.host}/brouwerijen.js`)
-        .then((response) => {
-          return response.json();
-        })
+        .then((response) => response.json())
         .then(() => {
           this.journeys = [
             ...this.journeys,
@@ -75,8 +86,8 @@ const journeyMixin = {
               from: from,
               to: to,
               distance: Math.round(Math.pow(Math.abs(+from - +to), 0.6)),
-              openToday: brewery.days.includes(dayName),
-              gMapURL: `${gMapDirection}${gMapParams}`,
+              openToday: brewery.days.includes(findDayName()),
+              mapUrl: buildMapLink(brewery),
             },
           ];
         })
@@ -96,4 +107,3 @@ const journeyMixin = {
 };
 
 export default journeyMixin;
-</script>

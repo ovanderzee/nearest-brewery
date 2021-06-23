@@ -1,5 +1,4 @@
-<script>
-/* oberon data
+/* brewery data
   { breweries: [
     {
       "address" : "Gedempte Voldersgracht 2",
@@ -57,4 +56,3 @@ const breweriesMixin = {
 };
 
 export default breweriesMixin;
-</script>

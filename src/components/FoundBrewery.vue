@@ -16,9 +16,9 @@
     </div>
     <div class="journey-data">
       <a
-        v-if="journey.gMapURL"
+        v-if="journey.mapUrl"
         class="directions"
-        :href="journey.gMapURL"
+        :href="journey.mapUrl"
         target="_blank"
       >
         <LocationPin />
