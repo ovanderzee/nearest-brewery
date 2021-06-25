@@ -40,16 +40,16 @@ const journeyMixin = defineComponent({
     /**
      * Journey list that shows all breweries
      * @param {Array} breweries
-     * @param {Function} setJourneys
+     * @return {Array} journeys
      */
-    noJourneys(breweries: TBrewery[], setJourneys: (arg: TJourney[]) => void) {
+    noJourneys(breweries: TBrewery[]) {
       const journeys = breweries.map((brewery) => {
         return {
           id: brewery.id,
           distance: Infinity,
         };
       }) as TJourney[];
-      setJourneys(journeys);
+      return journeys;
     },
     /**
      * Normalise Postcode to do queries or calculations

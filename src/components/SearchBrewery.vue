@@ -66,7 +66,7 @@ export default defineComponent({
      * @borrows this.postcode
      */
     onReset() {
-      this.noJourneys(this.breweries, this.setJourneys);
+      this.journeys = this.noJourneys(this.breweries);
       this.postcode = "";
     },
     /**
@@ -75,21 +75,6 @@ export default defineComponent({
      */
     noSubmit(event: any) {
       event.preventDefault();
-    },
-    /**
-     * Set this.breweries
-     * @param {Array} breweries
-     */
-    setBreweries(breweries: TBrewery[]) {
-      this.breweries = breweries;
-      this.noJourneys(breweries, this.setJourneys);
-    },
-    /**
-     * Set this.journeys thru replacement
-     * @param {Array} journeys
-     */
-    setJourneys(journeys: TJourney[]) {
-      this.journeys = journeys;
     },
     /**
      * Set this.journeys thru addition
@@ -107,7 +92,7 @@ export default defineComponent({
     trackJourneys(event: any) {
       event.stopPropagation();
       if (this.postcode && !event.target.value) {
-        this.noJourneys(this.breweries, this.setJourneys);
+        this.journeys = this.noJourneys(this.breweries);
         this.postcode = "";
       }
       const postcodeString = this.normalisePostcode(event.target.value);
@@ -120,8 +105,9 @@ export default defineComponent({
       this.postcode = postcodeString;
     },
   },
-  created() {
-    this.fetchBreweries(this.setBreweries);
+  async created() {
+    this.breweries = await this.fetchBreweries();
+    this.journeys = this.noJourneys(this.breweries);
   },
   computed: {
     journeySelection() {

@@ -22,40 +22,37 @@ import { TBrewery } from "../../types";
 const breweriesMixin = defineComponent({
   methods: {
     /**
-     * Normalise Brewery data
-     * @param {Function} setBreweries
+     * Retrieve and normalise Brewery data
+     * @return {Array} breweries
      */
-    fetchBreweries(setBreweries: (arg: TBrewery[]) => void) {
-      fetch(`//${location.host}/brouwerijen.ts`)
-        .then((response) => response.json())
-        .then((data) => {
-          const breweries = data.breweries.map((item: any) => {
-            const postcode = item.zipcode.trim().replace(/\s/, "");
-            return {
-              id: `${item.address.replace(/\s/, "_")}__${postcode}`,
-              name: item.name,
-              address: item.address,
-              city: item.city,
-              days: item.open,
-              postcode: postcode,
-            } as TBrewery;
-          }) as TBrewery[];
-          setBreweries(breweries);
-        })
-        .catch((err) => {
-          const errorBrewerys = [
-            {
-              id: "error_key",
-              name: "",
-              address: "",
-              city: "",
-              days: [],
-              postcode: "",
-              error: err.error ? err.error.toString() : err.toString(),
-            } as TBrewery,
-          ] as TBrewery[];
-          setBreweries(errorBrewerys);
-        });
+    async fetchBreweries() {
+      try {
+        const response = await fetch(`//${location.host}/brouwerijen.ts`);
+        const data = await response.json();
+        const breweries = data.breweries.map((item: any) => {
+          const postcode = item.zipcode.trim().replace(/\s/, "");
+          return {
+            id: `${item.address.replace(/\s/, "_")}__${postcode}`,
+            name: item.name,
+            address: item.address,
+            city: item.city,
+            days: item.open,
+            postcode: postcode,
+          } as TBrewery;
+        }) as TBrewery[];
+        return breweries;
+      } catch (err) {
+        const errorBrewery = {
+          id: "error_key",
+          name: "",
+          address: "",
+          city: "",
+          days: [],
+          postcode: "",
+          error: err.error ? err.error.toString() : err.toString(),
+        } as TBrewery;
+        return [errorBrewery];
+      }
     },
   },
 });
