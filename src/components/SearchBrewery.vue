@@ -20,7 +20,7 @@
         :brewery="{
           id: '',
           name: 'No breweries found',
-          address: `within ${findDistance} km and opened today`,
+          address: `within ${maxDistance} km and opened today`,
           days: [],
         }"
         :journey="{ id: '' }"
@@ -54,16 +54,12 @@ export default defineComponent({
       postcode: "" as string,
       breweries: [] as TBrewery[],
       journeys: [] as TJourney[],
-      findDistance: 30 as number,
+      maxDistance: 30 as number,
     };
   },
   methods: {
     /**
      * Reset form to show all breweries
-     * @this the calling component
-     * @borrows this.journeys (implicit)
-     * @borrows this.breweries (implicit)
-     * @borrows this.postcode
      */
     onReset() {
       this.journeys = this.noJourneys(this.breweries);
@@ -77,17 +73,7 @@ export default defineComponent({
       event.preventDefault();
     },
     /**
-     * Set this.journeys thru addition
-     * @param {Object} journey
-     */
-    setExtraJourney(journey: TJourney) {
-      this.journeys = [...this.journeys, journey];
-    },
-    /**
      * Engage the search
-     * @borrows this.journeys
-     * @borrows this.breweries
-     * @borrows this.postcode
      */
     trackJourneys(event: any) {
       event.stopPropagation();
@@ -95,14 +81,25 @@ export default defineComponent({
         this.journeys = this.noJourneys(this.breweries);
         this.postcode = "";
       }
-      const postcodeString = this.normalisePostcode(event.target.value);
-      if (!postcodeString) return;
+      const fromPostcode = this.normalisePostcode(event.target.value);
+      if (!fromPostcode) return;
       this.journeys = [];
 
-      this.breweries.forEach((brewery) =>
-        this.fetchJourney(postcodeString, brewery, this.setExtraJourney)
-      );
-      this.postcode = postcodeString;
+      this.breweries.forEach(async (brewery) => {
+        const toPostcode =
+          brewery.postcode.length > 4 &&
+          this.normalisePostcode(brewery.postcode);
+        if (!toPostcode) return;
+
+        const extraJourney: TJourney = await this.fetchJourney(
+          fromPostcode,
+          toPostcode,
+          brewery
+        );
+        this.journeys.push(extraJourney);
+      });
+      this.journeys.slice();
+      this.postcode = fromPostcode;
     },
   },
   async created() {
@@ -113,7 +110,7 @@ export default defineComponent({
     journeySelection() {
       const filtered: TJourney[] = this.journeys
         .filter((jrn: TJourney) =>
-          isFinite(jrn.distance) ? jrn.distance < this.findDistance : true
+          isFinite(jrn.distance) ? jrn.distance < this.maxDistance : true
         )
         .filter((jrn: TJourney) =>
           jrn.openToday !== undefined ? jrn.openToday : true

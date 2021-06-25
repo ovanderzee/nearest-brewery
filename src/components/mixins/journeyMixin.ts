@@ -67,45 +67,30 @@ const journeyMixin = defineComponent({
      * Dismiss not-dutch postcodes (length <= 4)
      * @param {String} from - postcode of comparison
      * @param {Object} brewery - one of the compared
-     * @param {Function} setExtraJourney
      */
-    fetchJourney(
-      from: string,
-      brewery: TBrewery,
-      setExtraJourney: (arg: TJourney) => void
-    ) {
-      const to =
-        brewery.postcode.length > 4 && this.normalisePostcode(brewery.postcode);
-      if (!to) {
-        return;
+    async fetchJourney(from: string, to: string, brewery: TBrewery) {
+      try {
+        const response = await fetch(`//${location.host}/brouwerijen.ts`);
+        const data = await response.json();
+        const journey = {
+          id: brewery.id,
+          from: from,
+          to: to,
+          distance: Math.round(Math.pow(Math.abs(+from - +to), 0.6)),
+          openToday: brewery.days.includes(findDayName()),
+          mapUrl: buildMapLink(brewery),
+        } as TJourney;
+        return journey;
+      } catch (err) {
+        const journey = {
+          id: brewery.id,
+          from: from,
+          to: to,
+          distance: Infinity,
+          error: err.error ? err.error.toString() : err.toString(),
+        } as TJourney;
+        return journey;
       }
-
-      let journey: TJourney;
-
-      // fetch something to have some asynchronicity
-      fetch(`//${location.host}/brouwerijen.ts`)
-        .then((response) => response.json())
-        .then(() => {
-          journey = {
-            id: brewery.id,
-            from: from,
-            to: to,
-            distance: Math.round(Math.pow(Math.abs(+from - +to), 0.6)),
-            openToday: brewery.days.includes(findDayName()),
-            mapUrl: buildMapLink(brewery),
-          };
-          setExtraJourney(journey);
-        })
-        .catch((err) => {
-          journey = {
-            id: brewery.id,
-            from: from,
-            to: to,
-            distance: Infinity,
-            error: err.error ? err.error.toString() : err.toString(),
-          };
-          setExtraJourney(journey);
-        });
     },
   },
 });
