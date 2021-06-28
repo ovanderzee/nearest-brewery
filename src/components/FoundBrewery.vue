@@ -36,10 +36,10 @@ import { defineComponent } from "vue";
 import LocationPin from "./svg/LocationPin";
 
 export default defineComponent({
-  name: "FoundBrewery",
   components: {
     LocationPin,
   },
+
   props: {
     brewery: Object,
     journey: Object,

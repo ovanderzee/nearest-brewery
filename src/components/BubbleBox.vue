@@ -10,50 +10,43 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onBeforeUnmount, ref } from "vue";
 import { TInlineCss } from "../types";
 import BubbleStick from "./BubbleStick.vue";
 
 export default defineComponent({
-  name: "BubbleBox",
   components: {
     BubbleStick,
   },
 
-  data() {
-    return {
-      bubbling: 0 as number,
-      interval: 250 as number,
-      sticks: [] as TInlineCss[],
-    };
-  },
+  setup() {
+    const interval = 250;
+    const sticks = ref([] as TInlineCss[]);
 
-  methods: {
     /**
      * Add new bubble periodically
      */
-    startBubbling() {
-      this.bubbling = setInterval(() => {
-        if (document.visibilityState !== "visible") return;
-        const randomPercentage = (100 * Math.random()).toFixed(3);
-        const newStick: TInlineCss = {
-          left: `${randomPercentage}%`,
-        };
-        this.sticks = this.sticks.concat([newStick]);
-      }, this.interval);
-    },
+    const bubbling = setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      const randomPercentage = (100 * Math.random()).toFixed(3);
+      const newStick = {
+        left: `${randomPercentage}%`,
+      };
+      sticks.value = sticks.value.concat([newStick]);
+    }, interval);
+
     /**
      * Remove disappeared bubble
      */
-    endBubble() {
-      this.sticks = this.sticks.slice(1);
-    },
-  },
-  created() {
-    this.startBubbling();
-  },
-  beforeUnmount() {
-    clearInterval(this.bubbling);
+    const endBubble = () => {
+      sticks.value = sticks.value.slice(1);
+    };
+
+    onBeforeUnmount(() => {
+      clearInterval(bubbling);
+    });
+
+    return { bubbling, sticks, endBubble };
   },
 });
 </script>

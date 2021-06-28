@@ -8,15 +8,17 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: "BubbleStick",
-  methods: {
+  setup(props) {
     /**
      * Handle a bubble disappearing
      */
-    onOffscreen() {
-      this.endBubble && this.endBubble();
-    },
+    const onOffscreen = () => {
+      props.endBubble && props.endBubble();
+    };
+
+    return { onOffscreen };
   },
+
   props: {
     endBubble: Function,
   },

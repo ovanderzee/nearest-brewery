@@ -36,81 +36,31 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { TBrewery, TJourney } from "../types";
 import FoundBrewery from "./FoundBrewery.vue";
-import breweriesMixin from "./mixins/breweriesMixin";
-import journeyMixin from "./mixins/journeyMixin";
+import { useFetchBreweries } from "./composables/breweriesComposable";
+import {
+  useNoJourneys,
+  useNormalisedPostcode,
+  useFetchJourney,
+} from "./composables/journeyComposable";
 
 export default defineComponent({
-  name: "SearchBrewery",
-  mixins: [breweriesMixin, journeyMixin],
-
   components: {
     FoundBrewery,
   },
-  data() {
-    return {
-      postcode: "" as string,
-      breweries: [] as TBrewery[],
-      journeys: [] as TJourney[],
-      maxDistance: 30 as number,
-    };
-  },
-  methods: {
-    /**
-     * Reset form to show all breweries
-     */
-    onReset() {
-      this.journeys = this.noJourneys(this.breweries);
-      this.postcode = "";
-    },
-    /**
-     * Prevent a page reload
-     * @param event
-     */
-    noSubmit(event: any) {
-      event.preventDefault();
-    },
-    /**
-     * Engage the search
-     */
-    trackJourneys(event: any) {
-      event.stopPropagation();
-      if (this.postcode && !event.target.value) {
-        this.journeys = this.noJourneys(this.breweries);
-        this.postcode = "";
-      }
-      const fromPostcode = this.normalisePostcode(event.target.value);
-      if (!fromPostcode) return;
-      this.journeys = [];
 
-      this.breweries.forEach(async (brewery) => {
-        const toPostcode =
-          brewery.postcode.length > 4 &&
-          this.normalisePostcode(brewery.postcode);
-        if (!toPostcode) return;
+  setup() {
+    const postcode = ref("");
+    const breweries = ref([] as TBrewery[]);
+    const journeys = ref([] as TJourney[]);
+    const maxDistance: number = 30;
 
-        const extraJourney: TJourney = await this.fetchJourney(
-          fromPostcode,
-          toPostcode,
-          brewery
-        );
-        this.journeys.push(extraJourney);
-      });
-      this.journeys.slice();
-      this.postcode = fromPostcode;
-    },
-  },
-  async created() {
-    this.breweries = await this.fetchBreweries();
-    this.journeys = this.noJourneys(this.breweries);
-  },
-  computed: {
-    journeySelection() {
-      const filtered: TJourney[] = this.journeys
+    const journeySelection = computed(() => {
+      const filtered: TJourney[] = journeys.value
         .filter((jrn: TJourney) =>
-          isFinite(jrn.distance) ? jrn.distance < this.maxDistance : true
+          isFinite(jrn.distance) ? jrn.distance < maxDistance : true
         )
         .filter((jrn: TJourney) =>
           jrn.openToday !== undefined ? jrn.openToday : true
@@ -119,7 +69,71 @@ export default defineComponent({
           (a: TJourney, b: TJourney) => (a.distance - b.distance) as number
         );
       return filtered;
-    },
+    });
+
+    /**
+     * Reset form to show all breweries
+     */
+    const onReset = () => {
+      journeys.value = useNoJourneys(breweries.value);
+      postcode.value = "";
+    };
+
+    /**
+     * Prevent a page reload
+     * @param event
+     */
+    const noSubmit = (event: any) => {
+      event.preventDefault();
+    };
+
+    /**
+     * Engage the search
+     */
+    const trackJourneys = (event: any) => {
+      event.stopPropagation();
+      if (postcode.value && !event.target.value) {
+        journeys.value = useNoJourneys(breweries.value);
+        postcode.value = "";
+      }
+      const fromPostcode = useNormalisedPostcode(event.target.value);
+      if (!fromPostcode) return;
+      journeys.value = [];
+
+      breweries.value.forEach(async (brewery) => {
+        // use the dutch \d{4}[a-z] or \d{4}\s[a-z] format
+        const toPostcode =
+          brewery.postcode.length > 4 &&
+          useNormalisedPostcode(brewery.postcode);
+        if (!toPostcode) return;
+
+        const extraJourney: TJourney = await useFetchJourney(
+          fromPostcode,
+          toPostcode,
+          brewery
+        );
+        journeys.value.push(extraJourney);
+      });
+      journeys.value.slice();
+      postcode.value = fromPostcode;
+    };
+
+    // set initial, unfiltered view
+    (async () => {
+      breweries.value = await useFetchBreweries();
+      journeys.value = useNoJourneys(breweries.value);
+    })();
+
+    return {
+      postcode,
+      breweries,
+      journeys,
+      maxDistance,
+      onReset,
+      noSubmit,
+      trackJourneys,
+      journeySelection,
+    };
   },
 });
 </script>
