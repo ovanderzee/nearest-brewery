@@ -1,5 +1,15 @@
 # nearest-brewery
 
+Vue3 study project.
+
+Features:
+- CSS Animation
+- Filtered and sorted data
+- Typescript
+- Async and Await
+- Composition API
+- Adapt mixins to Composition API
+
 ## Project setup
 ```
 npm install
